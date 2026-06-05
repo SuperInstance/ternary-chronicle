@@ -1,0 +1,11 @@
+[package]
+name = "ternary-chronicle"
+version = "0.1.0"
+edition = "2021"
+description = "Historical record and narrative generation for ternary state systems"
+license = "MIT"
+repository = "https://github.com/SuperInstance/ternary-chronicle"
+keywords = ["ternary", "chronicle", "history", "narrative", "timeline"]
+categories = ["algorithms", "mathematics", "science"]
+
+[dev-dependencies]
