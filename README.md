@@ -1,118 +1,94 @@
-# ternary-chronicle: Historical record and narrative generation for ternary state systems
+# ternary-chronicle
 
-Timestamped events, timelines, narrative summaries, indexed search, pattern-based prediction, and conservation law verification for {-1, 0, +1} state sequences.
+**Historical record and narrative generation for ternary state systems**
 
-## Why This Exists
+[![ternary](https://img.shields.io/badge/ecosystem-ternary-blue)](https://github.com/orgs/SuperInstance/repositories?q=ternary)
+[![tests](https://img.shields.io/badge/tests-22-green)]()
 
-Ternary systems produce sequences of state transitions, and without a way to record and reason about those transitions, you lose institutional memory. This crate gives you a chronicle — a structured historical record that lets you search the past, generate human-readable narratives, detect repeating patterns, and verify that your history obeys conservation laws. It's the fleet's logbook.
+## Overview
 
-## Core Concepts
+Historical record and narrative generation for ternary state systems.
 
-- **Ternary**: A value in {-1, 0, +1}. Negative, Zero, or Positive.
-- **Event**: A timestamped occurrence: agent transitions from one state vector to another, tagged with a classification.
-- **EventTag**: Classification — Transition, Threshold, Reversal, Stagnation, System, or Custom.
-- **Timeline**: An ordered (monotonic-timestamp) sequence of events with range and filter queries.
-- **Chronicle**: The top-level container managing per-agent timelines and a global timeline.
-- **Narrative**: Generates human-readable summaries and detailed blow-by-blow accounts from timelines.
-- **ChronicleIndex**: A searchable index built from a chronicle, supporting tag and agent queries.
-- **Prophecy**: Pattern-based prediction of future events from historical trends.
-- **ChronicleConservation**: Verifies that historical records obey conservation laws (sum conservation, continuity, energy).
+Provides chronicle-based tracking of ternary state transitions: timestamped
+events, timelines, narrative generation, indexed searching, pattern-based
+prediction, and conservation law verification.
 
-## Quick Start
+## Architecture
+
+- **`Event`** — core data structure
+- **`Timeline`** — core data structure
+- **`Chronicle`** — core data structure
+- **`Narrative`** — core data structure
+- **`ChronicleIndex`** — core data structure
+- **`Prophecy`** — core data structure
+- **`Prophet`** — core data structure
+- **`ChronicleConservation`** — core data structure
+- **`Ternary`** — state enumeration
+- **`EventTag`** — state enumeration
+
+### Key Functions
+
+- `value()`
+- `from_value()`
+- `net_delta()`
+- `is_reversal()`
+- `hamming_distance()`
+- `new()`
+- `push()`
+- `push_unchecked()`
+- `events()`
+- `len()`
+- ... and 26 more
+
+## Why Ternary?
+
+The balanced ternary system {-1, 0, +1} (also known as Z₃) is the mathematically optimal discrete encoding:
+- **More expressive than binary**: three states capture positive, neutral, and negative
+- **Natural for decisions**: accept/reject/abstain, buy/hold/sell, agree/disagree/neutral
+- **Self-balancing**: the 0 state acts as a universal screen, preventing pathological lock-in
+- **Z₃ cyclic dynamics**: rock-paper-scissors is the only natural coordination mechanism
+
+## Stats
+
+| Metric | Value |
+|--------|-------|
+| Lines of Rust | 704 |
+| Test count | 22 |
+| Public types | 10 |
+| Public functions | 36 |
+
+## Ecosystem
+
+This crate is part of the **[SuperInstance Ternary Fleet](https://github.com/orgs/SuperInstance/repositories?q=ternary)**:
+
+- **[ternary-core](https://github.com/SuperInstance/ternary-core)** — shared traits and Z₃ arithmetic
+- **[ternary-grid](https://github.com/SuperInstance/ternary-grid)** — spatial grid with {-1, 0, +1} cells
+- **[ternary-graph](https://github.com/SuperInstance/ternary-graph)** — ternary-weighted graph algorithms
+- **[ternary-automata](https://github.com/SuperInstance/ternary-automata)** — three-state cellular automata
+- **[ternary-compiler](https://github.com/SuperInstance/ternary-compiler)** — expression compiler and optimizer
+
+200+ crates. 4,300+ tests. One pattern.
+
+## Research Context
+
+The ternary approach connects to several active research areas:
+- **Ternary Neural Networks** (TNNs): weights constrained to {-1, 0, +1} for efficient inference
+- **Huawei's ternary chip**: 7nm ternary silicon with 60% less power consumption
+- **Active inference**: free energy minimization naturally maps to ternary action selection
+- **Cyclic dominance**: RPS dynamics maintain biodiversity in spatial ecology
+- **Z₃ group theory**: the only algebraic group on three elements is cyclic addition mod 3
+
+## Usage
 
 ```toml
-# Cargo.toml
 [dependencies]
-ternary-chronicle = "0.1"
+ternary-chronicle = "0.1.0"
 ```
 
 ```rust
-use ternary_chronicle::*;
-
-let mut chronicle = Chronicle::new();
-
-// Record events
-chronicle.record(Event {
-    timestamp: 100,
-    agent_id: 1,
-    from_state: vec![Ternary::Zero],
-    to_state: vec![Ternary::Positive],
-    tag: EventTag::Transition,
-    description: "Agent 1 activated".to_string(),
-});
-chronicle.record(Event {
-    timestamp: 200,
-    agent_id: 1,
-    from_state: vec![Ternary::Positive],
-    to_state: vec![Ternary::Negative],
-    tag: EventTag::Reversal,
-    description: "Agent 1 reversed".to_string(),
-});
-
-// Generate a narrative
-let summary = Narrative::summarize(chronicle.global_timeline());
-println!("{}", summary);
-
-// Search with an index
-let index = ChronicleIndex::build(&chronicle);
-assert_eq!(index.count_by_tag(EventTag::Reversal), 1);
+use ternary_chronicle;
 ```
-
-## API Overview
-
-| Type | Description |
-|------|-------------|
-| `Chronicle` | Top-level container for per-agent and global timelines |
-| `Timeline` | Ordered sequence of events with range/filter queries |
-| `Event` | A timestamped state transition with tag and description |
-| `EventTag` | Classification of events (Transition, Reversal, etc.) |
-| `Narrative` | Generates text summaries from timelines |
-| `ChronicleIndex` | Searchable index over chronicle records |
-| `Prophet` | Predicts future events from historical patterns |
-| `ChronicleConservation` | Verifies conservation laws on historical records |
-
-## How It Works
-
-Events are recorded into both a per-agent timeline and a global timeline. The `Timeline` enforces monotonic timestamps — you can't insert an event before the last one. Events carry a net delta (sum of to_state minus from_state), which enables conservation tracking.
-
-`Narrative` generates summaries by counting event tags, computing net delta, and measuring duration. `Narrative::detailed()` produces a per-event log with delta indicators (↑↓→).
-
-`ChronicleIndex` builds hash maps from tags and agent IDs to event positions, enabling O(1) lookups.
-
-`Prophet` uses tag frequency analysis (most common tag = most likely next tag) and autocorrelation for cycle detection. It looks for repeating patterns by testing candidate periods from min to max length.
-
-`ChronicleConservation` provides three checks: sum conservation (initial sum + all deltas should match), continuity (each event's from_state should match the previous to_state for the same agent), and energy (cumulative absolute delta should be non-negative).
-
-## Known Limitations
-
-- Timeline requires monotonic timestamps; you can't insert out-of-order events (use `push_unchecked` for that, but you lose the invariant).
-- Conservation checking is local (per-event), not global — it won't catch drift across non-adjacent events.
-- Pattern detection uses simple autocorrelation; it won't find patterns with noise or missing events.
-- Narrative generation is template-based; custom formatters are not supported.
-- The index is rebuilt from scratch each time; incremental updates are not supported.
-- No persistence — all data is in-memory.
-- Prophecy predictions are basic frequency analysis; they don't account for context or causality.
-
-## Use Cases
-
-- **Audit trail**: Record every state transition in a ternary system for compliance or debugging.
-- **Institutional memory**: Maintain a searchable history of agent behavior over long deployments.
-- **Anomaly investigation**: Search historical records by tag (e.g., all reversals) to investigate incidents.
-- **Pattern discovery**: Detect repeating cycles in agent behavior using Prophet's cycle detection.
-- **Conservation verification**: Ensure that a closed ternary system obeys expected conservation laws.
-
-## Ecosystem Context
-
-Part of the SuperInstance ternary ecosystem. Receives events from `ternary-compass` (anomalies become events) and `ternary-dockyard` (maintenance events). Feeds historical data to `ternary-prophet` for forecasting. The chronicle is the central historical record that other crates write to and read from.
 
 ## License
 
 MIT
-
-## See Also
-- **ternary-archive** — related
-- **ternary-replay** — related
-- **ternary-event** — related
-- **ternary-memory** — related
-- **ternary-database** — related
-
